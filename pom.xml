@@ -18,7 +18,7 @@
 
 	<name>React.js and Spring Data REST - Events</name>
 	<description>An SPA with ReactJS in the frontend and Spring Data REST in the backend</description>
-0
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.8</java.version>
