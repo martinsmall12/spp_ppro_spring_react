@@ -84,14 +84,26 @@ class App extends React.Component {
 		}).done(response => {
 			/* Let the websocket handler update the state */
 		}, response => {
+			if (response.status.code === 403) {
+				alert('ACCESS DENIED: You are not authorized to update ' +
+					employee.entity._links.self.href);
+			}
 			if (response.status.code === 412) {
-				alert('DENIED: Unable to update ' + employee.entity._links.self.href + '. Your copy is stale.');
+				alert('DENIED: Unable to update ' + employee.entity._links.self.href +
+					'. Your copy is stale.');
 			}
 		});
 	}
 
 	onDelete(employee) {
-		client({method: 'DELETE', path: employee.entity._links.self.href});
+		client({method: 'DELETE', path: employee.entity._links.self.href}
+		).done(response => {/* let the websocket handle updating the UI */},
+			response => {
+				if (response.status.code === 403) {
+					alert('ACCESS DENIED: You are not authorized to delete ' +
+						employee.entity._links.self.href);
+				}
+			});
 	}
 
 	onNavigate(navUri) {
@@ -186,7 +198,6 @@ class App extends React.Component {
 	render() {
 		return (
 			<div>
-				<CreateDialog attributes={this.state.attributes} onCreate={this.onCreate}/>
 				<EmployeeList page={this.state.page}
 							  employees={this.state.employees}
 							  links={this.state.links}
@@ -375,8 +386,9 @@ class EmployeeList extends React.Component {
 							<th>First Name</th>
 							<th>Last Name</th>
 							<th>Description</th>
-							<th></th>
-							<th></th>
+							<th>Manager</th>
+							<th>Update</th>
+							<th>Delete</th>
 						</tr>
 						{employees}
 					</tbody>
@@ -406,6 +418,7 @@ class Employee extends React.Component {
 				<td>{this.props.employee.entity.firstName}</td>
 				<td>{this.props.employee.entity.lastName}</td>
 				<td>{this.props.employee.entity.description}</td>
+				<td>{this.props.employee.entity.manager.name}</td>
 				<td>
 					<UpdateDialog employee={this.props.employee}
 								  attributes={this.props.attributes}

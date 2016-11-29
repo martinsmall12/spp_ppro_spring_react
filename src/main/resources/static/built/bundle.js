@@ -148,6 +148,9 @@
 				}).done(function (response) {
 					/* Let the websocket handler update the state */
 				}, function (response) {
+					if (response.status.code === 403) {
+						alert('ACCESS DENIED: You are not authorized to update ' + employee.entity._links.self.href);
+					}
 					if (response.status.code === 412) {
 						alert('DENIED: Unable to update ' + employee.entity._links.self.href + '. Your copy is stale.');
 					}
@@ -156,7 +159,11 @@
 		}, {
 			key: 'onDelete',
 			value: function onDelete(employee) {
-				client({ method: 'DELETE', path: employee.entity._links.self.href });
+				client({ method: 'DELETE', path: employee.entity._links.self.href }).done(function (response) {/* let the websocket handle updating the UI */}, function (response) {
+					if (response.status.code === 403) {
+						alert('ACCESS DENIED: You are not authorized to delete ' + employee.entity._links.self.href);
+					}
+				});
 			}
 		}, {
 			key: 'onNavigate',
@@ -265,7 +272,6 @@
 				return React.createElement(
 					'div',
 					null,
-					React.createElement(CreateDialog, { attributes: this.state.attributes, onCreate: this.onCreate }),
 					React.createElement(EmployeeList, { page: this.state.page,
 						employees: this.state.employees,
 						links: this.state.links,
@@ -574,8 +580,21 @@
 									null,
 									'Description'
 								),
-								React.createElement('th', null),
-								React.createElement('th', null)
+								React.createElement(
+									'th',
+									null,
+									'Manager'
+								),
+								React.createElement(
+									'th',
+									null,
+									'Update'
+								),
+								React.createElement(
+									'th',
+									null,
+									'Delete'
+								)
 							),
 							employees
 						)
@@ -627,6 +646,11 @@
 						'td',
 						null,
 						this.props.employee.entity.description
+					),
+					React.createElement(
+						'td',
+						null,
+						this.props.employee.entity.manager.name
 					),
 					React.createElement(
 						'td',
